@@ -149,7 +149,7 @@ do
 		return tconcat(out)
 	end
 
-    -- [ИСПРАВЛЕНО]: ТЕПЕРЬ ССЫЛКА НА ТВОЙ РЕПОЗИТОРИЙ УКАЗАНА ТЕХНИЧЕСКИ ВЕРНО
+    -- ПЕРЕНАПРАВЛЯЕМ СКАЧИВАНИЕ МОДУЛЕЙ НА ТВОЙ ЛИЧНЫЙ GITHUB
 	function shnet.lib(name)
 		return game:HttpGet("https://githubusercontent.com" .. tostring(name))
 	end
@@ -236,6 +236,7 @@ do
 			t = bxor(t, rshift(t, 8))
 			s0, s1, s2 = s1, s2, s3
 			local u = s3
+			u = bxor(u, rshift(u, 19))
 
 
 
