@@ -1,34 +1,58 @@
 -- =======================================================
--- ОПТИМИЗИРОВАННЫЙ ОБХОД КИКА ДЛЯ XENO (АНТИ-267)
+-- ОПТИМИЗИРОВАННЫЙ ЛОАДЕР ДЛЯ MM2 (ЗАЩИТА ОТ КИКА 267)
 -- =======================================================
-
-print("[XENO-LOADER] Запуск безопасной среды...")
+print("[MM2-BYPASS] Адаптация под Xeno...")
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
 
--- Функция защиты от локального удаления или кика игрой
+-- 1. БЕЗОПАСНАЯ ФУНКЦИЯ ТЕЛЕПОРТА (Вместо моментального изменения CFrame)
+-- Функция плавно перемещает тебя, чтобы серверный античит MM2 не заметил прыжка координат
+shared.MM2Teleport = function(targetCFrame)
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        local distance = (hrp.Position - targetCFrame.Position).Magnitude
+        -- Скорость 45 — это максимальный безопасный лимит для античита MM2
+        local duration = distance / 45 
+        
+        local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
+        tween:Play()
+        tween.Completed:Wait() -- Скрипт ждет, пока ты плавно долетишь
+    end
+end
+
+-- 2. ОГРАНИЧИТЕЛЬ СКОРОСТИ ДЛЯ MM2
+-- В MM2 нельзя ставить WalkSpeed выше 32-35. Всё, что выше — серверный кик!
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(1) do
         pcall(function()
-            -- Если внутриигровой античит пытается вызвать функцию Kick у игрока
-            if LocalPlayer and LocalPlayer:FindFirstChild("Kick") then
-                -- В Xeno мы можем попробовать просто сломать локальный вызов
-                LocalPlayer.Kick = function() return nil end
+            local char = LocalPlayer.Character
+            local hum = char and char:FindFirstChild("Humanoid")
+            if hum then
+                -- Если в твоем основном скрипте стоит изменение скорости, 
+                -- ограничь его до безопасных 30 единиц.
+                if hum.WalkSpeed > 32 then
+                    hum.WalkSpeed = 30 
+                    print("[MM2-ANTI-267] Скорость снижена до безопасного лимита!")
+                end
             end
         end)
     end
 end)
 
-print("[XENO-LOADER] Скрипт успешно инжектирован!")
+print("[MM2-BYPASS] Защита успешно запущена! Загружаем твой основной код...")
 
 -- =======================================================
--- ТУТ НАЧИНАЕТСЯ ТВОЙ ОСНОВНОЙ КОД (ТВОЙ ЧИТ)
+-- ТУТ НАЧИНАЕТСЯ ТВОЙ ОСНОВНОЙ КОД (Твои GUI-меню, ЕСП и т.д.)
 -- =======================================================
 
--- ПРИМЕР: Если тебе нужно изменить скорость, делай это плавно!
--- Не ставь скорость 100+, иначе серверный античит игры выдаст 267 кик со своей стороны.
--- LocalPlayer.Character.Humanoid.WalkSpeed = 32 
+-- ПРИМЕР: Если раньше ты телепортировал игрока так: 
+-- LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(10, 20, 30)
+-- ТО ТЕПЕРЬ используй безопасную функцию:
+-- shared.MM2Teleport(CFrame.new(10, 20, 30))
 if not LPH_OBFUSCATED then
 	local a = function() end
 	local g = getgenv and getgenv() or _G
