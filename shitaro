@@ -237,13 +237,7 @@ do
 			s0, s1, s2 = s1, s2, s3
 			local u = s3
 			u = bxor(u, rshift(u, 19))
-
-
-
-local function assetParse(raw)
-	if type(raw) ~= "string" or #raw == 0 then
-		return nil
-	end
+u = bxor(u, t)s3 = ureturn uendendendlocal function assetParse(raw)if type(raw) ~= "string" or #raw == 0 thenreturn nilendlocal ok, tbl = pcall(function()return shjson:JSONDecode(raw)end)if ok and type(tbl) == "table" and type(tbl.f) == "table" thenreturn tblendreturn nilend
 
 	local ok, tbl = pcall(function()
 		return shjson:JSONDecode(raw)
